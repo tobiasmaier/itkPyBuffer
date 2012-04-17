@@ -1,6 +1,8 @@
 #
 # Find the packages required by this module
 #
+
+find_package(PythonLibs REQUIRED)
 find_package(NUMARRAY REQUIRED)
 
 if(NOT PYTHON_NUMARRAY_FOUND)
