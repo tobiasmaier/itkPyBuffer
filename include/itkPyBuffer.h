@@ -23,6 +23,7 @@
 #include "itkObjectFactory.h"
 #include "itkImportImageFilter.h"
 
+
 // The python header defines _POSIX_C_SOURCE without a preceding #undef
 #undef _POSIX_C_SOURCE
 #include <Python.h>
@@ -81,14 +82,23 @@ public:
 
 
 protected:
-  typedef enum PyArray_TYPES PyArrayType;
-  static PyArrayType GetPyType(void);
-
   PyBuffer(const Self&);     // Not implemented.
   void operator=(const Self&); // Not implemented.
 
 };
 
+template <class T> struct PyTypeTraits; // the primary template is empty, by design.
+template<> struct PyTypeTraits<double> { enum { value = PyArray_DOUBLE }; };
+template<> struct PyTypeTraits<float> { enum { value = PyArray_FLOAT }; };
+template<> struct PyTypeTraits<long>{ enum { value = PyArray_LONG }; };
+#ifdef NDARRAY_VERSION
+template<> struct PyTypeTraits<unsigned long>{ enum { value = PyArray_ULONG }; };
+#endif
+template<> struct PyTypeTraits<int>{ enum { value = PyArray_INT }; };
+template<> struct PyTypeTraits<short>{ enum { value = PyArray_UINT }; };
+template<> struct PyTypeTraits<unsigned short>{ enum { value = PyArray_SHORT }; };
+template<> struct PyTypeTraits<signed char>{ enum { value = PyArray_BYTE }; };
+template<> struct PyTypeTraits<unsigned char>{ enum { value = PyArray_UBYTE }; };
 
 } // namespace itk
 

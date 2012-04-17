@@ -19,7 +19,6 @@
 #define __itkPyBuffer_hxx
 
 #include "itkPyBuffer.h"
-#include "itkPixelTraits.h"
 
 // Deal with slight incompatibilites between NumPy (the future, hopefully),
 // Numeric (old version) and Numarray's Numeric compatibility module (also old).
@@ -57,8 +56,7 @@ PyBuffer<TImage>
     dimensions[ImageDimension - d - 1] = size[d];
     }
 
-  int item_type = GetPyType();  // TODO find a way of doing this through pixel traits
-  // figure out an appropriate type
+  int item_type = PyTypeTraits<PixelType>::value;
 
   PyObject * obj = PyArray_FromDimsAndData( ImageDimension, dimensions, item_type, data );
 
@@ -71,7 +69,7 @@ PyBuffer<TImage>
 ::GetImageFromArray( PyObject *obj )
 {
 
-    int element_type = GetPyType();  ///PyArray_DOUBLE;  // change this with pixel traits.
+    int element_type = PyTypeTraits<PixelType>::value;
 
     PyArrayObject * parray =
           (PyArrayObject *) PyArray_ContiguousFromObject(
@@ -131,64 +129,6 @@ PyBuffer<TImage>
     return output;
 }
 
-template<class TImage>
-typename PyBuffer<TImage>::PyArrayType
-PyBuffer<TImage>
-::GetPyType(void)
-{
-  PyArrayType item_type;
-  typedef typename PixelTraits< PixelType >::ValueType    ScalarType;
-  if(typeid(ScalarType) == typeid(double))
-    {
-    item_type = PyArray_DOUBLE;
-    }
-  else if(typeid(ScalarType) == typeid(float))
-    {
-    item_type = PyArray_FLOAT;
-    }
-  else if(typeid(ScalarType) == typeid(long))
-    {
-    item_type = PyArray_LONG;
-    }
-  else if(typeid(ScalarType) == typeid(unsigned long))
-    {
-#ifdef NDARRAY_VERSION
-    item_type = PyArray_ULONG;
-#else
-    throw std::runtime_error("Type currently not supported");
-#endif
-    }
-  else if(typeid(ScalarType) == typeid(int))
-    {
-    item_type = PyArray_INT;
-    }
-  else if(typeid(ScalarType) == typeid(unsigned int))
-    {
-    item_type = PyArray_UINT;
-    }
-  else if(typeid(ScalarType) == typeid(short))
-    {
-    item_type = PyArray_SHORT;
-    }
-  else if(typeid(ScalarType) == typeid(unsigned short))
-    {
-    item_type = PyArray_USHORT;
-    }
-  else if(typeid(ScalarType) == typeid(signed char))
-    {
-    item_type = PyArray_BYTE;
-    }
-  else if(typeid(ScalarType) == typeid(unsigned char))
-    {
-    item_type = PyArray_UBYTE;
-    }
-  else
-    {
-    item_type = PyArray_NOTYPE;
-    throw std::runtime_error("Type currently not supported");
-    }
-  return item_type;
-}
 
 } // namespace itk
 
