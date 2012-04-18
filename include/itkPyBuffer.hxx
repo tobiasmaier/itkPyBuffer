@@ -20,12 +20,17 @@
 
 #include "itkPyBuffer.h"
 
-// Deal with slight incompatibilites between NumPy (the future, hopefully),
-// Numeric (old version) and Numarray's Numeric compatibility module (also old).
-#ifndef NDARRAY_VERSION
-// NDARRAY_VERSION is only defined by NumPy's arrayobject.h
-// In non NumPy arrayobject.h files, PyArray_SBYTE is used instead of BYTE.
-#define PyArray_BYTE PyArray_SBYTE
+// Support NumPy < 1.7
+#ifndef NPY_ARRAY_C_CONTIGUOUS
+#define NPY_ARRAY_C_CONTIGUOUS NPY_C_CONTIGUOUS
+#endif
+
+#ifndef NPY_ARRAY_F_CONTIGUOUS
+#define NPY_ARRAY_F_CONTIGUOUS NPY_F_CONTIGUOUS
+#endif
+
+#ifndef NPY_ARRAY_WRITEABLE
+#define NPY_ARRAY_WRITEABLE NPY_WRITEABLE
 #endif
 
 namespace itk
@@ -34,7 +39,7 @@ namespace itk
 template<class TImage>
 PyObject *
 PyBuffer<TImage>
-::GetArrayFromImage( ImageType * image )
+::GetArrayFromImage( ImageType * image, bool keepAxes)
 {
   if( !image )
   {
@@ -51,28 +56,44 @@ PyBuffer<TImage>
   int nrOfComponents = DefaultConvertPixelTraits<PixelType>::GetNumberOfComponents(image->GetPixel(index));
 
   int item_type = PyTypeTraits<ComponentType>::value;
+  
+  int numpyArrayDimension = ( nrOfComponents > 1) ? ImageDimension + 1 : ImageDimension;
 
-  int dimensions[ ImageDimension + 1 ];
-  dimensions[ImageDimension] = nrOfComponents;
+  // Construct array with dimensions
+  npy_intp dimensions[ numpyArrayDimension ];
+  
+  // Add a dimension if there are more than one component
+  if ( nrOfComponents > 1)
+  {
+    dimensions[0] = nrOfComponents;
+  }
+  int dimensionOffset = ( nrOfComponents > 1) ? 1 : 0;
 
-  // Invert order of Dimensions
   SizeType size = image->GetBufferedRegion().GetSize();
   for(unsigned int d=0; d < ImageDimension; d++ )
   {
-    dimensions[ImageDimension - d-1] = size[d];
+    dimensions[d + dimensionOffset] = size[d];
   }
 
-  PyObject * obj;
-  if ( nrOfComponents > 1)
+  if (!keepAxes)
   {
-    // Create a N+1 dimensional PyArray
-    obj = PyArray_FromDimsAndData( ImageDimension + 1, dimensions, item_type, data );
+    // Reverse dimensions array
+    npy_intp reverseDimensions[ numpyArrayDimension ];
+    for(int d=0; d < numpyArrayDimension; d++ )
+    {
+        reverseDimensions[d] = dimensions[numpyArrayDimension - d - 1];
+    }
+
+    for(int d=0; d < numpyArrayDimension; d++ )
+    {
+        dimensions[d] = reverseDimensions[d];
+    }
   }
-  else
-  {
-   // Create a N dimensional PyArray
-    obj = PyArray_FromDimsAndData( ImageDimension, dimensions + 1, item_type, data );
-  }
+
+  int flags = (keepAxes? NPY_ARRAY_F_CONTIGUOUS : NPY_ARRAY_C_CONTIGUOUS) | 
+              NPY_WRITEABLE;
+
+  PyObject * obj = PyArray_New(&PyArray_Type, numpyArrayDimension, dimensions, item_type, NULL, data, 0, flags, NULL);
 
   return obj;
 }

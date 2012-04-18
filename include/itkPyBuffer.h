@@ -29,7 +29,6 @@
 #undef _POSIX_C_SOURCE
 #include <Python.h>
 #include <arrayobject.h>
-#include <old_defines.h>
 
 
 namespace itk
@@ -59,7 +58,7 @@ public:
   typedef typename ImageType::RegionType      RegionType;
   typedef typename ImageType::PointType       PointType;
   typedef typename ImageType::SpacingType     SpacingType;
-  //typedef typename ImageType::Pointer         ImagePointer;
+  typedef typename ImageType::Pointer         ImagePointer;
   typedef typename DefaultConvertPixelTraits<PixelType>::ComponentType ComponentType;
 
    /** Image dimension. */
@@ -77,7 +76,7 @@ public:
   /**
    * Get an Array with the content of the image buffer
    */
-  static PyObject * GetArrayFromImage( ImageType * image);
+  static PyObject * GetArrayFromImage( ImageType * image, bool keepAxes = false);
 
   /**
    * Get an ITK image from a Python array
@@ -92,17 +91,17 @@ protected:
 };
 
 template <class T> struct PyTypeTraits; // the primary template is empty, by design.
-template<> struct PyTypeTraits<double> { enum { value = PyArray_DOUBLE }; };
-template<> struct PyTypeTraits<float> { enum { value = PyArray_FLOAT }; };
-template<> struct PyTypeTraits<long>{ enum { value = PyArray_LONG }; };
+template<> struct PyTypeTraits<double> { enum { value = NPY_DOUBLE }; };
+template<> struct PyTypeTraits<float> { enum { value = NPY_FLOAT }; };
+template<> struct PyTypeTraits<long>{ enum { value = NPY_LONG }; };
 #ifdef NDARRAY_VERSION
-template<> struct PyTypeTraits<unsigned long>{ enum { value = PyArray_ULONG }; };
+template<> struct PyTypeTraits<unsigned long>{ enum { value = NPY_ULONG }; };
 #endif
-template<> struct PyTypeTraits<int>{ enum { value = PyArray_INT }; };
-template<> struct PyTypeTraits<short>{ enum { value = PyArray_UINT }; };
-template<> struct PyTypeTraits<unsigned short>{ enum { value = PyArray_SHORT }; };
-template<> struct PyTypeTraits<signed char>{ enum { value = PyArray_BYTE }; };
-template<> struct PyTypeTraits<unsigned char>{ enum { value = PyArray_UBYTE }; };
+template<> struct PyTypeTraits<int>{ enum { value = NPY_INT }; };
+template<> struct PyTypeTraits<short>{ enum { value = NPY_UINT }; };
+template<> struct PyTypeTraits<unsigned short>{ enum { value = NPY_SHORT }; };
+template<> struct PyTypeTraits<signed char>{ enum { value = NPY_BYTE }; };
+template<> struct PyTypeTraits<unsigned char>{ enum { value = NPY_UBYTE }; };
 
 } // namespace itk
 
