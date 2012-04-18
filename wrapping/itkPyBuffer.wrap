@@ -1,4 +1,11 @@
 itk_wrap_class("itk::PyBuffer")
   UNIQUE(types "${WRAP_ITK_SCALAR};UC")
   itk_wrap_image_filter("${types}" 1)
+
+  # VectorImage types
+  foreach(d ${ITK_WRAP_DIMS})
+    foreach(t ${WRAP_ITK_SCALAR})
+      itk_wrap_template("${ITKM_VI${t}${d}}" "${ITKT_VI${t}${d}}")
+    endforeach(t)
+  endforeach(d)
 itk_end_wrap_class()

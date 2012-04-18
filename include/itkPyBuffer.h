@@ -22,6 +22,7 @@
 #include "itkObject.h"
 #include "itkObjectFactory.h"
 #include "itkImportImageFilter.h"
+#include "itkDefaultConvertPixelTraits.h"
 
 
 // The python header defines _POSIX_C_SOURCE without a preceding #undef
@@ -58,17 +59,20 @@ public:
   typedef typename ImageType::RegionType      RegionType;
   typedef typename ImageType::PointType       PointType;
   typedef typename ImageType::SpacingType     SpacingType;
-  typedef typename ImageType::Pointer         ImagePointer;
+  //typedef typename ImageType::Pointer         ImagePointer;
+  typedef typename DefaultConvertPixelTraits<PixelType>::ComponentType ComponentType;
 
    /** Image dimension. */
   itkStaticConstMacro(ImageDimension, unsigned int,
                       ImageType::ImageDimension);
 
+
   /// Type of the import image filter
-  typedef ImportImageFilter< PixelType,
+  typedef ImportImageFilter< ComponentType,
                              ImageDimension >   ImporterType;
 
   typedef typename ImporterType::Pointer   ImporterPointer;
+  typedef typename Image<ComponentType, ImageDimension>::Pointer  OutImagePointer;
 
   /**
    * Get an Array with the content of the image buffer
@@ -78,7 +82,7 @@ public:
   /**
    * Get an ITK image from a Python array
    */
-  static const ImagePointer GetImageFromArray( PyObject *obj );
+  static const OutImagePointer GetImageFromArray( PyObject *obj );
 
 
 protected:

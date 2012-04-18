@@ -37,39 +37,53 @@ PyBuffer<TImage>
 ::GetArrayFromImage( ImageType * image )
 {
   if( !image )
-    {
+  {
     throw std::runtime_error("Input image is null");
-    }
+  }
 
   image->Update();
 
-  PixelType * buffer = const_cast < PixelType * > ( image->GetBufferPointer() );
-
+  ComponentType * buffer = const_cast < ComponentType * > ( image->GetBufferPointer() );
   char * data = (char *)( buffer );
+ 
+  IndexType index;
+  index.Fill(0);
+  int nrOfComponents = DefaultConvertPixelTraits<PixelType>::GetNumberOfComponents(image->GetPixel(index));
 
-  int dimensions[ ImageDimension ];
+  int item_type = PyTypeTraits<ComponentType>::value;
 
+  int dimensions[ ImageDimension + 1 ];
+  dimensions[ImageDimension] = nrOfComponents;
+
+  // Invert order of Dimensions
   SizeType size = image->GetBufferedRegion().GetSize();
-
   for(unsigned int d=0; d < ImageDimension; d++ )
-    {
-    dimensions[ImageDimension - d - 1] = size[d];
-    }
+  {
+    dimensions[ImageDimension - d-1] = size[d];
+  }
 
-  int item_type = PyTypeTraits<PixelType>::value;
-
-  PyObject * obj = PyArray_FromDimsAndData( ImageDimension, dimensions, item_type, data );
+  PyObject * obj;
+  if ( nrOfComponents > 1)
+  {
+    // Create a N+1 dimensional PyArray
+    obj = PyArray_FromDimsAndData( ImageDimension + 1, dimensions, item_type, data );
+  }
+  else
+  {
+   // Create a N dimensional PyArray
+    obj = PyArray_FromDimsAndData( ImageDimension, dimensions + 1, item_type, data );
+  }
 
   return obj;
 }
 
 template<class TImage>
-const typename PyBuffer<TImage>::ImagePointer
+const typename PyBuffer<TImage>::OutImagePointer
 PyBuffer<TImage>
 ::GetImageFromArray( PyObject *obj )
 {
 
-    int element_type = PyTypeTraits<PixelType>::value;
+    int element_type = PyTypeTraits<ComponentType>::value;
 
     PyArrayObject * parray =
           (PyArrayObject *) PyArray_ContiguousFromObject(
@@ -115,7 +129,7 @@ PyBuffer<TImage>
 
     const bool importImageFilterWillOwnTheBuffer = false;
 
-    PixelType * data = (PixelType *)parray->data;
+    ComponentType * data = (ComponentType *)parray->data;
 
     importer->SetImportPointer(
                         data,
@@ -123,7 +137,7 @@ PyBuffer<TImage>
                         importImageFilterWillOwnTheBuffer );
 
     importer->Update();
-    ImagePointer output = importer->GetOutput();
+    OutImagePointer output = importer->GetOutput();
     output->DisconnectPipeline();
 
     return output;
