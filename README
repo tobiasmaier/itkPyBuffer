@@ -1,0 +1,11 @@
+This is a port from the PyBuffer as ITK4 module.
+
+Differences to original PyBuffer
+ - Support for VectorImages (only for GetArrayFromImage)
+ - Option to not swap the axes (only for GetArrayFromImage)
+ - Some rudimental tests
+ - No support for numarray
+
+TODO:
+ - add features also to GetImageFromArray
+ - improve test
