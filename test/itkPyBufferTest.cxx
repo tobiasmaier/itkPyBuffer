@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "NumpyHelper.h"
+
 #include "itkPyBuffer.h"
 #include "itkImage.h"
 #include "itkVectorImage.h"
@@ -9,6 +11,8 @@ int itkPyBufferTest(int, char * [])
 {
     try
     {
+        NumpyHelper::Initialize();
+
         const unsigned int Dimension = 3;
         typedef unsigned char                                  PixelType;
         typedef itk::Image<PixelType, Dimension>       ScalarImageType;
@@ -26,7 +30,7 @@ int itkPyBufferTest(int, char * [])
         scalarImage->Allocate();
 
         itk::PyBuffer<ScalarImageType>::GetArrayFromImage(scalarImage);
-        
+
     }
     catch(itk::ExceptionObject &err)
     {
