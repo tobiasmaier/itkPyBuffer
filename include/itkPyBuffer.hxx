@@ -51,8 +51,6 @@ PyBuffer<TImage>
   ComponentType *buffer =  const_cast < ComponentType *> (reinterpret_cast< const ComponentType* > ( buffer ) );
   char * data = (char *)( buffer );
 
-  IndexType index;
-  index.Fill(0);
   int nrOfComponents = image->GetNumberOfComponentsPerPixel();
 
   int item_type = PyTypeTraits<ComponentType>::value;
