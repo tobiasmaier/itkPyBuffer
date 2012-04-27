@@ -50,18 +50,18 @@ PyBuffer<TImage>
 
   ComponentType * buffer = const_cast < ComponentType * > ( image->GetBufferPointer() );
   char * data = (char *)( buffer );
- 
+
   IndexType index;
   index.Fill(0);
   int nrOfComponents = DefaultConvertPixelTraits<PixelType>::GetNumberOfComponents(image->GetPixel(index));
 
   int item_type = PyTypeTraits<ComponentType>::value;
-  
+
   int numpyArrayDimension = ( nrOfComponents > 1) ? ImageDimension + 1 : ImageDimension;
 
   // Construct array with dimensions
   npy_intp dimensions[ numpyArrayDimension ];
-  
+
   // Add a dimension if there are more than one component
   if ( nrOfComponents > 1)
   {
@@ -90,7 +90,7 @@ PyBuffer<TImage>
     }
   }
 
-  int flags = (keepAxes? NPY_ARRAY_F_CONTIGUOUS : NPY_ARRAY_C_CONTIGUOUS) | 
+  int flags = (keepAxes? NPY_ARRAY_F_CONTIGUOUS : NPY_ARRAY_C_CONTIGUOUS) |
               NPY_WRITEABLE;
 
   PyObject * obj = PyArray_New(&PyArray_Type, numpyArrayDimension, dimensions, item_type, NULL, data, 0, flags, NULL);
