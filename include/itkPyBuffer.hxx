@@ -48,7 +48,7 @@ PyBuffer<TImage>
 
   image->Update();
 
-  ComponentType * buffer = const_cast < ComponentType * > ( image->GetBufferPointer() );
+  ComponentType *buffer =  const_cast < ComponentType *> (reinterpret_cast< const ComponentType* > ( buffer ) );
   char * data = (char *)( buffer );
 
   IndexType index;
