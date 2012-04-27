@@ -48,7 +48,7 @@ PyBuffer<TImage>
 
   image->Update();
 
-  ComponentType *buffer =  const_cast < ComponentType *> (reinterpret_cast< const ComponentType* > ( buffer ) );
+  ComponentType *buffer =  const_cast < ComponentType *> (reinterpret_cast< const ComponentType* > ( image->GetBufferPointer() ) );
   char * data = (char *)( buffer );
 
   int nrOfComponents = image->GetNumberOfComponentsPerPixel();
