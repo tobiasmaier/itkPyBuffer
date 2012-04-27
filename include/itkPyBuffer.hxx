@@ -53,7 +53,7 @@ PyBuffer<TImage>
 
   IndexType index;
   index.Fill(0);
-  int nrOfComponents = DefaultConvertPixelTraits<PixelType>::GetNumberOfComponents(image->GetPixel(index));
+  int nrOfComponents = image->GetNumberOfComponentsPerPixel();
 
   int item_type = PyTypeTraits<ComponentType>::value;
 
