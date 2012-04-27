@@ -90,16 +90,28 @@ protected:
 
 };
 
-template <class T> struct PyTypeTraits; // the primary template is empty, by design.
+// This declaration is void of a definition, so that unsupported types
+// will generate a compile time error.
+template <class T> struct PyTypeTraits;
+
 template<> struct PyTypeTraits<double> { enum { value = NPY_DOUBLE }; };
 template<> struct PyTypeTraits<float> { enum { value = NPY_FLOAT }; };
+
+template<> struct PyTypeTraits<std::complex<float> > { enum { value = NPY_COMPLEX64 }; };
+template<> struct PyTypeTraits<std::complex<double> > { enum { value = NPY_COMPLEX128 }; };
+
+template<> struct PyTypeTraits<long long>{ enum { value = NPY_LONGLONG }; };
+template<> struct PyTypeTraits<unsigned long long>{ enum { value = NPY_ULONGLONG }; };
+
 template<> struct PyTypeTraits<long>{ enum { value = NPY_LONG }; };
-#ifdef NDARRAY_VERSION
 template<> struct PyTypeTraits<unsigned long>{ enum { value = NPY_ULONG }; };
-#endif
+
 template<> struct PyTypeTraits<int>{ enum { value = NPY_INT }; };
-template<> struct PyTypeTraits<short>{ enum { value = NPY_UINT }; };
+template<> struct PyTypeTraits<unsigned int>{ enum { value = NPY_UINT }; };
+
+template<> struct PyTypeTraits<short>{ enum { value = NPY_USHORT }; };
 template<> struct PyTypeTraits<unsigned short>{ enum { value = NPY_SHORT }; };
+
 template<> struct PyTypeTraits<signed char>{ enum { value = NPY_BYTE }; };
 template<> struct PyTypeTraits<unsigned char>{ enum { value = NPY_UBYTE }; };
 
