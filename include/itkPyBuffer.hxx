@@ -18,6 +18,8 @@
 #ifndef __itkPyBuffer_hxx
 #define __itkPyBuffer_hxx
 
+#include <vector>
+
 #include "itkPyBuffer.h"
 
 // Support NumPy < 1.7
@@ -58,7 +60,7 @@ PyBuffer<TImage>
   int numpyArrayDimension = ( nrOfComponents > 1) ? ImageDimension + 1 : ImageDimension;
 
   // Construct array with dimensions
-  npy_intp dimensions[ numpyArrayDimension ];
+  std::vector<npy_intp> dimensions(numpyArrayDimension);
 
   // Add a dimension if there are more than one component
   if ( nrOfComponents > 1)
@@ -76,22 +78,19 @@ PyBuffer<TImage>
   if (!keepAxes)
   {
     // Reverse dimensions array
-    npy_intp reverseDimensions[ numpyArrayDimension ];
+    std::vector<npy_intp> reverseDimensions(numpyArrayDimension);
     for(int d=0; d < numpyArrayDimension; d++ )
     {
         reverseDimensions[d] = dimensions[numpyArrayDimension - d - 1];
     }
 
-    for(int d=0; d < numpyArrayDimension; d++ )
-    {
-        dimensions[d] = reverseDimensions[d];
-    }
+	dimensions = reverseDimensions;
   }
 
   int flags = (keepAxes? NPY_ARRAY_F_CONTIGUOUS : NPY_ARRAY_C_CONTIGUOUS) |
               NPY_WRITEABLE;
 
-  PyObject * obj = PyArray_New(&PyArray_Type, numpyArrayDimension, dimensions, item_type, NULL, data, 0, flags, NULL);
+  PyObject * obj = PyArray_New(&PyArray_Type, numpyArrayDimension, &dimensions[0], item_type, NULL, data, 0, flags, NULL);
 
   return obj;
 }
