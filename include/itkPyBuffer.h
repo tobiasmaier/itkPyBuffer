@@ -109,8 +109,8 @@ template<> struct PyTypeTraits<unsigned long>{ enum { value = NPY_ULONG }; };
 template<> struct PyTypeTraits<int>{ enum { value = NPY_INT }; };
 template<> struct PyTypeTraits<unsigned int>{ enum { value = NPY_UINT }; };
 
-template<> struct PyTypeTraits<short>{ enum { value = NPY_USHORT }; };
-template<> struct PyTypeTraits<unsigned short>{ enum { value = NPY_SHORT }; };
+template<> struct PyTypeTraits<short>{ enum { value = NPY_SHORT }; };
+template<> struct PyTypeTraits<unsigned short>{ enum { value = NPY_USHORT }; };
 
 template<> struct PyTypeTraits<signed char>{ enum { value = NPY_BYTE }; };
 template<> struct PyTypeTraits<unsigned char>{ enum { value = NPY_UBYTE }; };
